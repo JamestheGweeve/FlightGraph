@@ -25,12 +25,13 @@ bool AirportMap::hasRoute(int i1, const AirportNode& a2) const{
     return false;
 }
 
-void AirportMap::insertAirport(const string n, const string c){
-    AirportNode a(n, c);
+void AirportMap::insertAirport(const string n, const string c, const string s){
+    AirportNode a(n, c, s);
     if(getAirportIndex(a) != -1){
         cout << "Airport already added\n";
         return;
     }
+    
     airports.push_back(a);
     vector<Route> t;
     routes.push_back(t);

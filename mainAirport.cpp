@@ -43,20 +43,13 @@ vector<string> split(const string& s) {
     // Iterating through each token
     while (it != end) {
         string t = *it;
-        int s;
-        string last_word;
-        
-        if(out.size() >= 1){
-            s = out.size()-1;
-            last_word = out[s];
+        if(t[0] == '\"'){
+            t = t.substr(1);
+            out.push_back(t);
         }
-        if(t[3] == '\"' && !last_word.empty()){
-            if(last_word[last_word.size()-1] != '\"'){
-                out[out.size()-1] = out[out.size()-1] + "," + t;
-            }
-            else{
-                out.push_back(t);
-            }
+        else if(t[3] == '\"'){
+            t = t.substr(0,t.size()-1);
+            out.push_back(t);
         }
             
         else{
@@ -94,12 +87,12 @@ void runFromFile(const char* file_name, AirportMap& m) {
 }
 
 void addRow(vector<string> words, AirportMap& m){
-    if(!m.hasAirport(AirportNode(words[0], words[2]))){
-        m.insertAirport(words[0], words[2]);
+    if(!m.hasAirport(AirportNode(words[0], words[2], words[3]))){
+        m.insertAirport(words[0], words[2], words[3]);
     }
-    if(!m.hasAirport(AirportNode(words[1], words[3]))){
-        m.insertAirport(words[1], words[3]);
+    if(!m.hasAirport(AirportNode(words[1], words[4], words[5]))){
+        m.insertAirport(words[1], words[4], words[5]);
     }
     
-    m.insertRoute(AirportNode(words[0], words[2]), AirportNode(words[1], words[3]), stoi(words[4]), stoi(words[5]));
+    m.insertRoute(AirportNode(words[0], words[2], words[3]), AirportNode(words[1], words[4], words[5]), stoi(words[6]), stoi(words[7]));
 }
