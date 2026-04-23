@@ -109,7 +109,7 @@ void AirportGraph::displayAirportConnections() const {
     std::sort(connections.begin(), connections.end(),
               [](const auto& a, const auto& b){ return a.second > b.second; });
 
-    std::cout << "\n=== Task 5: Airport Connectivity Count ===\n";
+    std::cout << "\nTask 5: Airport Connectivity Count\n";
     std::cout << "Airport\tConnections\n";
     for (const auto& p : connections) {
         std::cout << p.first << "\t" << p.second << std::endl;
@@ -158,7 +158,7 @@ void AirportGraph::printUndirectedGraph() const {
     }
 
     const auto& airports = airportMap.getAirports();
-    std::cout << "\n=== Task 6: Undirected Graph Edges (u, v) cost ===\n";
+    std::cout << "\nTask 6: Undirected Graph Edges (u, v) cost\n";
 
     std::vector<std::tuple<std::string, std::string, int>> edges;
     int n = airportMap.getNumAirports();
