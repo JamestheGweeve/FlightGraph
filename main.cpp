@@ -1,3 +1,8 @@
+//How to run
+// compile with: g++ -std=c++17 main.cpp AirportGraph.cpp -o airport_graph
+// run with: ./airport_graph airports.csv
+
+
 #include "AirportGraph.hpp"
 #include <iostream>
 #include <string>
