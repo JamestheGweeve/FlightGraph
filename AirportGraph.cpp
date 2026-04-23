@@ -78,7 +78,7 @@ void AirportGraph::buildGraphFromCSV(const std::string& filename) {
         }
     }
 
-    std::cout << "Graph built successfully: " << numAirports << " airports, " << rawEdges.size() << " directed flights." << std::endl;
+    std::cout << "Graph based on data: " << numAirports << " airports, " << rawEdges.size() << " directed flights." << std::endl;
     file.close();
 }
 
