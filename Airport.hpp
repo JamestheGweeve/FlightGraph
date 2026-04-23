@@ -5,6 +5,7 @@
 #include <iostream>
 #include <climits>
 #include <algorithm>
+#include <functional>
 
 using namespace std;
 
@@ -55,6 +56,10 @@ public:
 
     // Task 3
     void shortestPathToState(const string& origin, const string& state);
+
+    //Task 4
+    void shortestPathWithStops(const string& origin, const string& dest, int K);
+
     int getNumAirports() const { return static_cast<int>(airports.size()); }
     const std::vector<AirportNode>& getAirports() const { return airports; }
     const std::vector<std::vector<Route>>& getRoutes() const { return routes; }
