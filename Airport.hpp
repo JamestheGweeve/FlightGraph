@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <climit>
+#include <algorithm>
 
 using namespace std;
 
@@ -47,6 +49,8 @@ public:
     bool hasAirport(const AirportNode& a) const { return getAirportIndex(a) != -1 ? true : false; }; // Currently exists to help condense the text in the importing data phase
     void print() const; // Prints everything (remove later)
 
+    // Task 3
+    void shortestPathToState(const string& origin, const string& state);
 };
 
 #include "Airport.tpp"

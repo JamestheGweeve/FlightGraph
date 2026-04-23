@@ -58,3 +58,77 @@ void AirportMap::print(void) const{ // Was made for the purposes of testing out 
         cout << "}\n";
     }
 }
+
+void AirportMap::shortestPathToState(const string& origin, const string& state){
+    int n = airports.size();
+    int src = getAirportIndex(AirportNode(origin, "", ""));
+
+    if (src == -1){
+        cout << "Origin not found\n";
+        return;
+    }
+
+    vector<int> dist(n, INT_MAX);
+    vector<int> cost(n, INT_MAX);
+    vector<int> parent(n, -1);
+    vector<bool> visited(n, false);
+
+    dist[src] = 0;
+    cost[src] = 0;
+
+    // Dijkstra
+    for(int i = 0; i < n; i++){
+        int u = -1;
+        for(int j = 0; j < n; j++){
+            if(!visited[j] && (u == -1 || dist[j] < dist[u])){
+                u = j;
+            }
+        }
+
+        if(dist[u] == INT_MAX) break;
+
+        visited[u] = true;
+
+        for(const Route& r : routes[u]){
+            int v = getAirportIndex(r.neighbor);
+            if(dist[u] + r.distance < dist[v]){
+                dist[v] = dist[u] + r.distance;
+                cost[v] = cost[u] + r.cost;
+                parent[v] = u;
+            }
+        }
+    }
+
+    // Output
+    cout << "Shortest paths from " << origin << " to " << state << " state airports are:\n\n";
+    cout << "Path\tLength\tCost\n";
+
+    bool found = false;
+
+    for(int i = 0; i < n; i++){
+        if(airports[i].getState() == state && dist[i] != INT_MAX){
+            found = true;
+
+            vector<string> path;
+            for(int v = i; v != -1; v = parent[v]){
+                path.push_back(airports[v].getName());
+            }
+
+            reverse(path.begin(), path.end());
+
+            // Print path in format
+            for(int j = 0; j < path.size(); j++){
+                cout << path[j];
+                if(j != path.size() - 1){
+                    cout << "->";
+                }   
+            }
+
+            cout << "\t" << dist[i] << "\t" << cost[i] << endl;
+
+        }
+    }
+    if(!found){
+        cout << "No paths found\n";
+    }
+}
