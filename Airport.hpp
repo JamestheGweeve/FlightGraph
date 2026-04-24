@@ -5,6 +5,7 @@
 #include <iostream>
 #include <climits>
 #include <algorithm>
+#include <functional>
 
 using namespace std;
 
@@ -42,10 +43,11 @@ private:
     vector<AirportNode> airports; // vertices of graph
     vector<vector<Route>> routes; // edges
 
-    int getAirportIndex(const AirportNode& a) const; // Finds where Airport is located in airports vector
+ 
     bool hasRoute(int i1, const AirportNode& a2) const; // Checks if there's a direct flight between the airports (i1 is starting airport index, a2 is destination airport)
 
 public:
+    int getAirportIndex(const AirportNode& a) const; // Finds where Airport is located in airports vector
     void insertAirport(const string n, const string c, const string s); // Add new Airports to Map
     void insertRoute(const AirportNode& a1, const AirportNode& a2, int d = 1, int c = 1); // Makes a direct flight connection from one airport to another
 
@@ -54,8 +56,15 @@ public:
 
     // Task 3
     void shortestPathToState(const string& origin, const string& state);
+
+    //Task 4
+    void shortestPathWithStops(const string& origin, const string& dest, int K);
+
+    int getNumAirports() const { return static_cast<int>(airports.size()); }
+    const std::vector<AirportNode>& getAirports() const { return airports; }
+    const std::vector<std::vector<Route>>& getRoutes() const { return routes; }
 };
 
-#include "Airport.tpp"
+//#include "Airport.tpp"
 
 #endif

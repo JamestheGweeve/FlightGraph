@@ -133,3 +133,79 @@ void AirportMap::shortestPathToState(const string& origin, const string& state){
         cout << "No paths found\n";
     }
 }
+
+void AirportMap::shortestPathWithStops(const string& origin, const string& dest, int K){
+    int n = airports.size();
+    int src = getAirportIndex(AirportNode(origin, "", ""));
+    int target = getAirportIndex(AirportNode(dest, "", ""));
+
+    if (src == -1 || target == -1){
+        cout << "Invalid airports\n";
+        return;
+    }
+
+    int bestDist = INT_MAX;
+    int bestCost = 0;
+
+    vector<int> bestPath;
+    vector<int> path;
+    vector<bool> visited(n, false);
+
+    function<void(int, int, int, int)> dfs = [&](int u, int edgesUsed, int dist, int cost){
+
+        if(visited[u]) return;
+        if(dist >= bestDist) return;
+
+        visited[u] = true;
+        path.push_back(u);
+
+        // If destination reached
+        if(u == target){
+            //Stops
+            if(edgesUsed == K + 1){
+                bestDist = dist;
+                bestCost = cost;
+                bestPath = path;
+            }
+
+            path.pop_back();
+            visited[u] = false;
+            return;
+
+        }
+
+        // Too many edges
+        if(edgesUsed > K + 1){
+            path.pop_back();
+            visited[u] = false;
+            return;
+        }
+
+        for(const Route& r : routes[u]){
+            int v = getAirportIndex(r.neighbor);
+            dfs(v, edgesUsed + 1, dist + r.distance, cost + r.cost);
+        }
+
+        path.pop_back();
+        visited[u] = false;
+    };
+
+    dfs(src, 0, 0, 0);
+
+    // Output
+
+    if(bestDist == INT_MAX){
+        cout << "Shortest route from " << origin << " to " << dest << " with " << K << " stops: None" << endl;
+        return;
+    }
+
+    cout << "Shortest route from " << origin << " to " << dest << " with " << K << " stops: ";
+
+    for(int i = 0; i < bestPath.size(); i++){
+        cout << airports[bestPath[i]].getName();
+        if(i != bestPath.size() - 1) cout << " -> ";
+    }
+
+    cout << ". The length is " << bestDist << ". The cost is " << bestCost << "." << endl;
+
+}

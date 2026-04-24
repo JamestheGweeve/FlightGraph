@@ -1,14 +1,14 @@
 #include "AirportGraph.hpp"
+#include "Airport.tpp"
 #include <fstream>
-#include <sstream>
 #include <iostream>
 #include <algorithm>
 
 AirportGraph::AirportGraph() {}
 
 int AirportGraph::getAirportIndex(const std::string& code) const {
-    for (int i = 0; i < numAirports; ++i) {
-        if (airportCodes[i] == code) return i;
+    for (size_t i = 0; i < airportCodes.size(); ++i) {
+        if (airportCodes[i] == code) return static_cast<int>(i);
     }
     return -1;
 }
@@ -18,9 +18,8 @@ std::vector<std::string> AirportGraph::parseCSVLine(const std::string& line) con
     std::string field;
     bool inQuotes = false;
     for (char c : line) {
-        if (c == '"') {
-            inQuotes = !inQuotes;
-        } else if (c == ',' && !inQuotes) {
+        if (c == '"') inQuotes = !inQuotes;
+        else if (c == ',' && !inQuotes) {
             result.push_back(field);
             field.clear();
         } else {
@@ -39,109 +38,106 @@ void AirportGraph::buildGraphFromCSV(const std::string& filename) {
     }
 
     std::string line;
-    std::getline(file, line);
+    std::getline(file, line); // skip header
 
-    std::vector<std::pair<std::string, std::string>> rawEdges;
-    std::vector<int> rawDist, rawCost;
+    airportCodes.clear();
 
     while (std::getline(file, line)) {
         if (line.empty()) continue;
         auto fields = parseCSVLine(line);
-        if (fields.size() != 6) continue;
+        if (fields.size() < 6) continue;
 
-        std::string orig = fields[0];
-        std::string dest = fields[1];
+        std::string origCode = fields[0];
+        std::string destCode = fields[1];
+        std::string origCity = fields[2];
+        std::string destCity = fields[3];
         int dist = std::stoi(fields[4]);
         int cost = std::stoi(fields[5]);
 
-        rawEdges.emplace_back(orig, dest);
-        rawDist.push_back(dist);
-        rawCost.push_back(cost);
+        std::string origState = (origCity.find(", ") != std::string::npos) 
+                              ? origCity.substr(origCity.find(", ") + 2) : "";
+        std::string destState = (destCity.find(", ") != std::string::npos) 
+                              ? destCity.substr(destCity.find(", ") + 2) : "";
 
-        bool foundOrig = false, foundDest = false;
-        for (const auto& code : airportCodes) {
-            if (code == orig) foundOrig = true;
-            if (code == dest) foundDest = true;
-        }
-        if (!foundOrig) airportCodes.push_back(orig);
-        if (!foundDest) airportCodes.push_back(dest);
+        AirportNode origNode(origCode, origCity, origState);
+        AirportNode destNode(destCode, destCity, destState);
+
+        if (!airportMap.hasAirport(origNode))
+            airportMap.insertAirport(origCode, origCity, origState);
+        if (!airportMap.hasAirport(destNode))
+            airportMap.insertAirport(destCode, destCity, destState);
+
+        airportMap.insertRoute(origNode, destNode, dist, cost);
+
+        if (std::find(airportCodes.begin(), airportCodes.end(), origCode) == airportCodes.end())
+            airportCodes.push_back(origCode);
+        if (std::find(airportCodes.begin(), airportCodes.end(), destCode) == airportCodes.end())
+            airportCodes.push_back(destCode);
     }
 
-    numAirports = static_cast<int>(airportCodes.size());
-    adj.resize(numAirports);
-
-    for (size_t i = 0; i < rawEdges.size(); ++i) {
-        int u = getAirportIndex(rawEdges[i].first);
-        int v = getAirportIndex(rawEdges[i].second);
-        if (u != -1 && v != -1) {
-            adj[u].push_back({v, rawDist[i], rawCost[i]});
-        }
-    }
-
-    std::cout << "Graph based on data: " << numAirports << " airports, " << rawEdges.size() << " directed flights." << std::endl;
+    std::cout << "Graph built successfully using AirportMap: " 
+              << airportMap.getNumAirports() << " airports loaded.\n";
     file.close();
 }
 
 void AirportGraph::displayAirportConnections() const {
-    if (numAirports == 0) {
-        std::cout << "Error: Graph not built yet. Call buildGraphFromCSV first." << std::endl;
+    if (airportMap.getNumAirports() == 0) {
+        std::cout << "Error: Graph not built yet.\n";
         return;
     }
 
-    std::vector<int> outDeg(numAirports, 0);
-    std::vector<int> inDeg(numAirports, 0);
+    const auto& routes = airportMap.getRoutes();
+    const auto& airports = airportMap.getAirports();
+    int n = airportMap.getNumAirports();
 
-    for (int u = 0; u < numAirports; ++u) {
-        outDeg[u] = static_cast<int>(adj[u].size());
-        for (const auto& e : adj[u]) {
-            if (e.to >= 0 && e.to < numAirports) {
-                inDeg[e.to]++;
+    std::vector<std::pair<std::string, int>> connections;
+
+    for (int i = 0; i < n; ++i) {
+        int outCount = static_cast<int>(routes[i].size());
+        int inCount = 0;
+        for (int u = 0; u < n; ++u) {
+            if (u == i) continue;
+            for (const auto& r : routes[u]) {
+                if (r.neighbor == airports[i]) ++inCount;
             }
         }
-    }
-
-    struct AirportConn {
-        std::string code;
-        int total;
-    };
-    std::vector<AirportConn> connections;
-    for (int i = 0; i < numAirports; ++i) {
-        connections.push_back({airportCodes[i], outDeg[i] + inDeg[i]});
+        int total = outCount + inCount;
+        if (total > 0)
+            connections.emplace_back(airports[i].getName(), total);
     }
 
     std::sort(connections.begin(), connections.end(),
-              [](const AirportConn& a, const AirportConn& b) {
-                  return a.total > b.total;
-              });
+              [](const auto& a, const auto& b){ return a.second > b.second; });
 
-    std::cout << "Airport\tConnections" << std::endl;
-    for (const auto& conn : connections) {
-        if (conn.total > 0) {
-            std::cout << conn.code << "\t" << conn.total << std::endl;
-        }
+    std::cout << "\nTask 5: Airport Connectivity Count\n";
+    std::cout << "Airport\tConnections\n";
+    for (const auto& p : connections) {
+        std::cout << p.first << "\t" << p.second << std::endl;
     }
 }
 
 void AirportGraph::buildUndirectedGraph() {
-    if (numAirports == 0) {
-        std::cout << "Error: Graph not built yet." << std::endl;
+    if (airportMap.getNumAirports() == 0) {
+        std::cout << "Error: Graph not built yet.\n";
         return;
     }
 
-    undirAdj.assign(numAirports, std::vector<UndirectedEdge>());
+    const auto& routes = airportMap.getRoutes();
+    int n = airportMap.getNumAirports();
+    undirAdj.assign(n, std::vector<UndirectedEdge>());
 
-    std::vector<std::vector<int>> minCost(numAirports, std::vector<int>(numAirports, INF));
-    for (int u = 0; u < numAirports; ++u) {
-        for (const auto& e : adj[u]) {
-            int v = e.to;
-            if (v >= 0 && v < numAirports) {
-                minCost[u][v] = std::min(minCost[u][v], e.cost);
-            }
+    std::vector<std::vector<int>> minCost(n, std::vector<int>(n, INF));
+
+    for (int u = 0; u < n; ++u) {
+        for (const auto& r : routes[u]) {
+            int v = airportMap.getAirportIndex(r.neighbor);
+            if (v != -1)
+                minCost[u][v] = std::min(minCost[u][v], r.cost);
         }
     }
 
-    for (int u = 0; u < numAirports; ++u) {
-        for (int v = u + 1; v < numAirports; ++v) {
+    for (int u = 0; u < n; ++u) {
+        for (int v = u + 1; v < n; ++v) {
             int c1 = minCost[u][v];
             int c2 = minCost[v][u];
             if (c1 < INF || c2 < INF) {
@@ -152,35 +148,33 @@ void AirportGraph::buildUndirectedGraph() {
         }
     }
 
-    std::cout << "Undirected graph created successfully (" << numAirports << " airports)." << std::endl;
+    std::cout << "\nTask 6: Undirected graph created successfully (" << n << " airports).\n";
 }
 
 void AirportGraph::printUndirectedGraph() const {
-    if (numAirports == 0 || undirAdj.empty()) {
-        std::cout << "Undirected graph has not been built yet." << std::endl;
+    if (undirAdj.empty()) {
+        std::cout << "Undirected graph has not been built yet.\n";
         return;
     }
 
-    std::cout << "\nTask 6: Undirected Graph Edges (u, v)" << std::endl;
+    const auto& airports = airportMap.getAirports();
+    std::cout << "\nTask 6: Undirected Graph Edges (u, v) cost\n";
 
     std::vector<std::tuple<std::string, std::string, int>> edges;
-
-    for (int u = 0; u < numAirports; ++u) {
+    int n = airportMap.getNumAirports();
+    for (int u = 0; u < n; ++u) {
         for (const auto& e : undirAdj[u]) {
-            std::string a = airportCodes[u];
-            std::string b = airportCodes[e.to];
-            if (a > b) std::swap(a, b);
-            edges.emplace_back(a, b, e.cost);
+            if (u < e.to) {
+                std::string a = airports[u].getName();
+                std::string b = airports[e.to].getName();
+                edges.emplace_back(a, b, e.cost);
+            }
         }
     }
 
     std::sort(edges.begin(), edges.end());
-    auto last = std::unique(edges.begin(), edges.end());
-    edges.erase(last, edges.end());
-
     for (const auto& [u, v, cost] : edges) {
         std::cout << "(" << u << ", " << v << ")  cost: " << cost << std::endl;
     }
-
     std::cout << "\nTotal undirected edges created: " << edges.size() << std::endl;
 }
