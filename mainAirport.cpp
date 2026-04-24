@@ -48,7 +48,7 @@ vector<string> split(const string& s) {
             out.push_back(t);
         }
         else if(t[3] == '\"'){
-            t = t.substr(0,t.size()-1);
+            t = t.substr(1, 2);
             out.push_back(t);
         }
             
