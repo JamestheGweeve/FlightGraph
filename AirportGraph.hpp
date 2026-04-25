@@ -65,6 +65,13 @@ public:
 
     bool hasPath(int from, int to, std::vector<std::vector<int>>& visitedGraph, std::vector<bool>& visited); // DFS approach for kruskals
 
+    // Ensuring functions work with inheritance
+    // Here to fix the problems inheritance causes them.
+    void shortestPath(const string& start, const string& dest) const; // Task 2
+
+    void shortestPathToState(const string& origin, const string& state) const; // Task 3
+
+    void shortestPathWithStops(const string& origin, const string& dest, int K) const; // Task 4
 
 };
 
