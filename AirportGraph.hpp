@@ -25,7 +25,8 @@ public:
     AirportGraph();
 
     void buildGraphFromCSV(const std::string& filename);
-
+    void shortestPathToState(const std::string& origin, const std::string& state);  // Task 3 wrapper
+    void shortestPathWithStops(const std::string& origin, const std::string& dest, int K);  // Task 4 wrapper
     void displayAirportConnections() const;   // Task 5
     void buildUndirectedGraph();              // Task 6
     void printUndirectedGraph() const;

@@ -178,3 +178,11 @@ void AirportGraph::printUndirectedGraph() const {
     }
     std::cout << "\nTotal undirected edges created: " << edges.size() << std::endl;
 }
+
+void AirportGraph::shortestPathToState(const std::string& origin, const std::string& state) {
+    airportMap.shortestPathToState(origin, state);
+}
+
+void AirportGraph::shortestPathWithStops(const std::string& origin, const std::string& dest, int K) {
+    airportMap.shortestPathWithStops(origin, dest, K);
+}

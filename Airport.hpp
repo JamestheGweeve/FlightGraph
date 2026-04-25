@@ -55,10 +55,10 @@ public:
     void print() const; // Prints everything (remove later)
 
     // Task 3
-    void shortestPathToState(const string& origin, const string& state);
+    void shortestPathToState(const string& origin, const string& state); // Finds the shortest path between an airport and a state
 
     //Task 4
-    void shortestPathWithStops(const string& origin, const string& dest, int K);
+    void shortestPathWithStops(const string& origin, const string& dest, int K); // Finds shortest path between two airports with stops
 
     int getNumAirports() const { return static_cast<int>(airports.size()); }
     const std::vector<AirportNode>& getAirports() const { return airports; }

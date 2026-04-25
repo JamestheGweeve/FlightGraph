@@ -3,6 +3,7 @@
 // then ./airport_graph airports.csv
 
 #include "AirportGraph.hpp"
+#include "Airport.hpp"
 #include <iostream>
 #include <string>
 
@@ -21,6 +22,8 @@ int main(int argc, char* argv[]) {
     int choice = 0;
     while (choice != 9) {
         std::cout << "\nTask Chooser:\n";
+        std::cout << "3) Find shortest by distance paths between a given origin airport to each airport located in a given destination state (Task 3)\n";
+        std::cout << "4) Find the shortest by distance path between a given origin airport and destination airport with a specified number of stops (Task 4)\n";
         std::cout << "5) Display total direct flight connections (Task 5)\n";
         std::cout << "6) Create and print undirected graph (Task 6)\n";
         std::cout << "9) Exit\n";
@@ -28,6 +31,27 @@ int main(int argc, char* argv[]) {
         std::cin >> choice;
 
         switch (choice) {
+            case 3: {
+                string origin, state;
+                cout << "Enter origin airport: ";
+                cin >> origin;
+                cout << "Enter destination state (e.g., FL): ";
+                cin >> state;
+                graph.shortestPathToState(origin, state);
+                break;
+            }
+            case 4: {
+                string origin, dest;
+                int stops;
+                cout << "Enter origin airport: ";
+                cin >> origin;
+                cout << "Enter destination airport: ";
+                cin >> dest;
+                cout << "Enter number of stops: ";
+                cin >> stops;
+                graph.shortestPathWithStops(origin, dest, stops);
+                break;
+            }
             case 5:
                 graph.displayAirportConnections();
                 break;
