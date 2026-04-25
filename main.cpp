@@ -13,7 +13,7 @@
 
 int main(int argc, char* argv[]) {
     std::cout << "COP 3151 - Data Structures Team Project Spring 2026\n";
-    std::cout << "Parts 5 and 6\n\n";
+    std::cout << "Tasks 2 through 8\n\n";
 
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " airports.csv\n";
