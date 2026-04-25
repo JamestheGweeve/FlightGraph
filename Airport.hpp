@@ -54,6 +54,9 @@ public:
     bool hasAirport(const AirportNode& a) const { return getAirportIndex(a) != -1 ? true : false; }; // Currently exists to help condense the text in the importing data phase
     void print() const; // Prints everything (remove later)
 
+    // Task 2
+    void shortestPath(const string& start, const string& dest) const; // Find the shortest path between two airports
+
     // Task 3
     void shortestPathToState(const string& origin, const string& state); // Finds the shortest path between an airport and a state
 
