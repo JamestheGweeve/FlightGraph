@@ -1,6 +1,7 @@
 #include "AirportGraph.hpp"
 #include "Airport.tpp"
 #include <fstream>
+#include <regex>
 #include <iostream>
 #include <algorithm>
 
@@ -14,20 +15,33 @@ int AirportGraph::getAirportIndex(const std::string& code) const {
 }
 
 std::vector<std::string> AirportGraph::parseCSVLine(const std::string& line) const {
-    std::vector<std::string> result;
-    std::string field;
-    bool inQuotes = false;
-    for (char c : line) {
-        if (c == '"') inQuotes = !inQuotes;
-        else if (c == ',' && !inQuotes) {
-            result.push_back(field);
-            field.clear();
-        } else {
-            field += c;
+    vector<string> out; 
+    regex del(",");
+    
+    // Create a regex_token_iterator to split the string
+    sregex_token_iterator it(line.begin(), line.end(), del, -1);
+
+    // End iterator for the regex_token_iterator
+    sregex_token_iterator end;
+
+    // Iterating through each token
+    while (it != end) {
+        string t = *it;
+        if(t[0] == '\"'){
+            t = t.substr(1, t.size() - 1);
+            out.push_back(t);
         }
+        else if(t[3] == '\"'){
+            t = t.substr(1, 2);
+            out.push_back(t);
+        }
+        else{
+            out.push_back(*it);
+        }
+        ++it;
     }
-    result.push_back(field);
-    return result;
+
+    return out;
 }
 
 void AirportGraph::buildGraphFromCSV(const std::string& filename) {
@@ -50,22 +64,18 @@ void AirportGraph::buildGraphFromCSV(const std::string& filename) {
         std::string origCode = fields[0];
         std::string destCode = fields[1];
         std::string origCity = fields[2];
-        std::string destCity = fields[3];
-        int dist = std::stoi(fields[4]);
-        int cost = std::stoi(fields[5]);
-
-        std::string origState = (origCity.find(", ") != std::string::npos) 
-                              ? origCity.substr(origCity.find(", ") + 2) : "";
-        std::string destState = (destCity.find(", ") != std::string::npos) 
-                              ? destCity.substr(destCity.find(", ") + 2) : "";
+        std::string destCity = fields[4];
+        int dist = std::stoi(fields[6]);
+        int cost = std::stoi(fields[7]);
+        
+        std::string origState = fields[3];
+        std::string destState = fields[5];
 
         AirportNode origNode(origCode, origCity, origState);
         AirportNode destNode(destCode, destCity, destState);
 
-        if (!airportMap.hasAirport(origNode))
-            airportMap.insertAirport(origCode, origCity, origState);
-        if (!airportMap.hasAirport(destNode))
-            airportMap.insertAirport(destCode, destCity, destState);
+        airportMap.insertAirport(origCode, origCity, origState);
+        airportMap.insertAirport(destCode, destCity, destState);
 
         airportMap.insertRoute(origNode, destNode, dist, cost);
 
@@ -295,4 +305,19 @@ bool AirportGraph::hasPath(int from, int to, std::vector<std::vector<int>>& mstA
 
     return false;
 
+}
+
+void AirportGraph::shortestPath(const string& start, const string& dest) const{
+    airportMap.shortestPath(start, dest);
+    return;
+}
+
+void AirportGraph::shortestPathToState(const string& origin, const string& state) const{
+    airportMap.shortestPathToState(origin, state);
+    return;
+}
+
+void AirportGraph::shortestPathWithStops(const string& origin, const string& dest, int K) const{
+    airportMap.shortestPathWithStops(origin, dest, K);
+    return;
 }
