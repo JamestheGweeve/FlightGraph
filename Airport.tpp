@@ -3,35 +3,41 @@
 // AirportMap Methods
 
 int AirportMap::getAirportIndex(const AirportNode& a) const{
-    for(int i = 0; i < airports.size(); i++){
-        if(airports[i] == a){
-            return i;
+    if((a.getName() != "" && a.getCity() == "" && a.getState() == "") || (a.getName() != "" && a.getCity() != "" && a.getState() != "")){
+        for(int i = 0; i < airports.size(); i++){
+            if(airports[i].getName() == a.getName()){
+                return i;
+            }
         }
     }
     return -1;
 }
 
 bool AirportMap::hasRoute(int i1, const AirportNode& a2) const{
+    // Returning false if i1 is outside of the range of airports vector (means no possible route)
     if (i1 < 0 || i1 >= routes.size()){
         return false;
     }
 
+    // Checking if a2 is a neighbor within routes vector (returns true if so)
     for(const Route& r : routes[i1]){
         if(r.neighbor == a2){
             return true;
         }
     }
 
+    // False if above check fails
     return false;
 }
 
 void AirportMap::insertAirport(const string n, const string c, const string s){
+    // Checking if Airport is already within map
     AirportNode a(n, c, s);
     if(getAirportIndex(a) != -1){
-        cout << "Airport already added\n";
         return;
     }
-    
+
+    // Adding Airport to Map
     airports.push_back(a);
     vector<Route> t;
     routes.push_back(t);
@@ -40,11 +46,13 @@ void AirportMap::insertAirport(const string n, const string c, const string s){
 void AirportMap::insertRoute(const AirportNode& a1, const AirportNode& a2, int d, int c){
     int idx1 = getAirportIndex(a1);
     int idx2 = getAirportIndex(a2);
+    // Checks if Airports are within vector
     if(idx1 == -1 || idx2 == -1){
         cout << "One or both don't exist" << endl;
         return;
     }
 
+    // If found that there isn't already an existing route between the two, adds one
     if(!hasRoute(idx1, a2)) {
         routes[idx1].push_back(Route(a2,d,c));
     }
@@ -129,17 +137,7 @@ void AirportMap::shortestPath(const string& start, const string& dest) const{
     return;
 }
 
-void AirportMap::print(void) const{ // Was made for the purposes of testing out the import code
-    for (int i = 0; i < airports.size(); i++) {
-        cout << "{ " << airports[i].getName() << ": ";
-        for(int j = 0; j < routes[i].size(); j++) {
-            cout << "(" << routes[i][j].neighbor << ", " << routes[i][j].distance << ", " << routes[i][j].cost << ") ";
-        }
-        cout << "}\n";
-    }
-}
-
-void AirportMap::shortestPathToState(const string& origin, const string& state){
+void AirportMap::shortestPathToState(const string& origin, const string& state) const{
     int n = airports.size();
     int src = getAirportIndex(AirportNode(origin, "", ""));
 
@@ -213,7 +211,7 @@ void AirportMap::shortestPathToState(const string& origin, const string& state){
     }
 }
 
-void AirportMap::shortestPathWithStops(const string& origin, const string& dest, int K){
+void AirportMap::shortestPathWithStops(const string& origin, const string& dest, int K) const {
     int n = airports.size();
     int src = getAirportIndex(AirportNode(origin, "", ""));
     int target = getAirportIndex(AirportNode(dest, "", ""));
