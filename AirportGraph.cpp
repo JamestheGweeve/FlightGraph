@@ -142,13 +142,11 @@ void AirportGraph::buildUndirectedGraph() {
             int c2 = minCost[v][u];
             if (c1 < INF || c2 < INF) {
                 int selectedCost = std::min(c1, c2);
-                undirAdj[u].push_back({v, selectedCost});
-                undirAdj[v].push_back({u, selectedCost});
+                undirAdj[u].push_back({u, v, selectedCost});
+                undirAdj[v].push_back({v, u, selectedCost});
             }
         }
     }
-
-    std::cout << "\nTask 6: Undirected graph created successfully (" << n << " airports).\n";
 }
 
 void AirportGraph::printUndirectedGraph() const {
@@ -179,10 +177,122 @@ void AirportGraph::printUndirectedGraph() const {
     std::cout << "\nTotal undirected edges created: " << edges.size() << std::endl;
 }
 
-void AirportGraph::shortestPathToState(const std::string& origin, const std::string& state) {
-    airportMap.shortestPathToState(origin, state);
+void AirportGraph::minSpanningTree() {
+    buildUndirectedGraph();
+    int n = undirAdj.size();
+    if (!n) {
+        return;
+    }
+
+    const auto& airports = airportMap.getAirports();
+    std::vector<std::string> tree;
+    std::vector<bool> explored(n, false);
+    PriorityQueue q;
+
+    int exploredEdges = 0;
+    int totalCost = 0;
+
+    explored[0] = true;
+
+    for (UndirectedEdge edge : undirAdj[0]) {
+        q.push(edge);
+    }
+    
+
+    while (!q.empty() && exploredEdges < n - 1) {
+        UndirectedEdge edge = q.top();
+        q.pop();
+
+        int idx = edge.to;
+
+        if (explored[idx]) {
+            continue;
+        }
+        explored[idx] = true;
+        totalCost += edge.cost;
+        exploredEdges++;
+
+        tree.push_back(airports[edge.from].getName() + " - " + airports[edge.to].getName() + " cost: " + to_string(edge.cost));
+        for (const auto& push : undirAdj[idx]) {
+            if (!explored[push.to]) {
+                q.push(push);
+            }
+        }
+    }
+
+    if (exploredEdges != n - 1) {
+        std::cout << "Not a connected graph, a MST cannot be made" << std::endl;
+    } else {
+        for (const auto& edge : tree) {
+            std::cout << edge << std::endl; 
+        }
+
+        std::cout << "Total Cost: " << totalCost << std::endl;
+    }
+
 }
 
-void AirportGraph::shortestPathWithStops(const std::string& origin, const std::string& dest, int K) {
-    airportMap.shortestPathWithStops(origin, dest, K);
+void AirportGraph::minSpanningForest() {
+    buildUndirectedGraph();
+    int n = undirAdj.size();
+    if (!n) {
+        return;
+    }
+
+    const auto& airports = airportMap.getAirports();
+    std::vector<std::string> tree;
+    PriorityQueue q;
+
+    int exploredEdges = 0;
+    int totalCost = 0;
+    
+    for (int i = 0; i < n; i++) {
+        for (UndirectedEdge edge : undirAdj[i]) {
+            q.push(edge);
+        }
+    }
+
+    std::vector<std::vector<int>> mstAdj(n); 
+
+    while (!q.empty()) {
+        std::vector<bool> explored(n, false);
+        UndirectedEdge edge = q.top();
+        q.pop();
+
+        if (!hasPath(edge.from, edge.to, mstAdj, explored)) {
+            mstAdj[edge.from].push_back(edge.to);
+            mstAdj[edge.to].push_back(edge.from);
+
+            totalCost += edge.cost;
+            exploredEdges++;
+
+            tree.push_back(airports[edge.from].getName() + " - " + airports[edge.to].getName() + " cost: " + to_string(edge.cost));
+        }
+    }
+    
+    for (const auto& edge : tree) {
+        std::cout << edge << std::endl; 
+    }
+
+    std::cout << "Total Cost: " << totalCost << std::endl;
+
+}
+
+bool AirportGraph::hasPath(int from, int to, std::vector<std::vector<int>>& mstAdj, std::vector<bool>& visited) {
+    if (from == to) {
+        return true;
+    }
+
+    visited[from] = true;
+
+    for (int neighbor : mstAdj[from]) {
+        if (!visited[neighbor]) {
+            if (hasPath(neighbor, to, mstAdj, visited)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+
 }
