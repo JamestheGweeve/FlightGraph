@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-class AirportGraph {
+class AirportGraph : public AirportMap {
 private:
     AirportMap airportMap;                   
 
