@@ -52,16 +52,15 @@ public:
     void insertRoute(const AirportNode& a1, const AirportNode& a2, int d = 1, int c = 1); // Makes a direct flight connection from one airport to another
 
     bool hasAirport(const AirportNode& a) const { return getAirportIndex(a) != -1 ? true : false; }; // Currently exists to help condense the text in the importing data phase
-    void print() const; // Prints everything (remove later)
 
     // Task 2
     void shortestPath(const string& start, const string& dest) const; // Find the shortest path between two airports
 
     // Task 3
-    void shortestPathToState(const string& origin, const string& state); // Finds the shortest path between an airport and a state
+    void shortestPathToState(const string& origin, const string& state) const; // Finds the shortest path between an airport and a state
 
     //Task 4
-    void shortestPathWithStops(const string& origin, const string& dest, int K); // Finds shortest path between two airports with stops
+    void shortestPathWithStops(const string& origin, const string& dest, int K) const; // Finds shortest path between two airports with stops
 
     int getNumAirports() const { return static_cast<int>(airports.size()); }
     const std::vector<AirportNode>& getAirports() const { return airports; }
