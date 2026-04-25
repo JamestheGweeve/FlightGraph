@@ -50,6 +50,85 @@ void AirportMap::insertRoute(const AirportNode& a1, const AirportNode& a2, int d
     }
 }
 
+void AirportMap::shortestPath(const string& start, const string& dest) const{
+    // Get Indexes
+    int i_start = getAirportIndex(AirportNode(start, "", ""));
+    int i_dest = getAirportIndex(AirportNode(dest, "", ""));
+
+    // Check Edge Cases
+    if(i_start == -1 || i_dest == -1){
+        cout << "shortestPath: Incorrect indices" << endl;
+        return;
+    }
+    if(i_start == i_dest){
+        cout << "shortestPath: The start point and the destination are the same" << endl;
+        return;
+    }
+
+    // Creating Vectors to track the totals for both weights
+    vector<int> distances(airports.size(), INT_MAX);
+    vector<int> costs(airports.size(), INT_MAX);
+    distances[i_start] = 0;
+    costs[i_start] = 0;
+
+    // Keep track of what nodes have been visited and the path being made
+    vector<bool> visited(airports.size(), false);
+    vector<int> prev(airports.size(), -1);
+
+    // Dijkstra’s Algorithm
+    for(int i = 0; i < airports.size(); i++){
+        int u = -1;
+        for(int j = 0; j < airports.size(); j++){
+            if(!visited[j] && (u == -1 || distances[j] < distances[u])){
+                u = j;
+            }
+        }
+
+        if(distances[u] == INT_MAX){
+            break;
+        }
+        
+        visited[u] = true;
+
+        for(const Route& r : routes[u]){
+            int v = getAirportIndex(r.neighbor);
+            if(distances[u] + r.distance < distances[v]){
+                distances[v] = distances[u] + r.distance;
+                costs[v] = costs[u] + r.cost;
+                prev[v] = u;
+            }
+        }
+    }
+
+    cout << "Shortest path from " << start << " to " << dest << ": ";
+    // Check to determine if a path was found
+    if(distances[i_dest] == INT_MAX){
+        cout << "None" << endl;
+        return;
+    }
+
+    // Extracting the final path
+    int idx = i_dest;
+    vector<int> path;
+    while(idx != i_start){
+        path.push_back(idx);
+        idx = prev[idx];
+    }
+    path.push_back(idx);
+
+    reverse(path.begin(), path.end());
+
+    for(int i = 0; i < path.size(); i++){
+        cout << airports[path[i]].getName();
+        if(i < path.size()-1){
+            cout << " -> ";
+        }
+    }
+
+    cout << "\nThe distance is " << distances[i_dest] << " and the cost is " << costs[i_dest] << endl;
+    return;
+}
+
 void AirportMap::print(void) const{ // Was made for the purposes of testing out the import code
     for (int i = 0; i < airports.size(); i++) {
         cout << "{ " << airports[i].getName() << ": ";
