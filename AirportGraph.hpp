@@ -10,6 +10,7 @@ private:
     AirportMap airportMap;                   
 
     struct UndirectedEdge {
+        int from;
         int to;
         int cost;
     };
@@ -21,15 +22,50 @@ private:
     int getAirportIndex(const std::string& code) const;
     std::vector<std::string> parseCSVLine(const std::string& line) const;
 
+    class PriorityQueue { // helper Queue for algorithms, will handle sorting 
+    public:
+        std::vector<UndirectedEdge> data;
+
+
+        void push(UndirectedEdge edge) {
+            data.push_back(edge);
+            if (data.size() > 1) {
+                int index = data.size() - 1;
+                while (index > 0 && data[index].cost < data[index - 1].cost) {
+                    std::swap(data[index], data[index - 1]);
+                    index--;
+                }
+            }
+        }
+
+        void pop() {
+            data.erase(data.begin());
+        }
+
+        UndirectedEdge top() {
+            return data[0];
+        }
+
+        bool empty() {
+            return data.size() == 0;
+        }
+    };
+
 public:
     AirportGraph();
 
     void buildGraphFromCSV(const std::string& filename);
-    void shortestPathToState(const std::string& origin, const std::string& state);  // Task 3 wrapper
-    void shortestPathWithStops(const std::string& origin, const std::string& dest, int K);  // Task 4 wrapper
+
     void displayAirportConnections() const;   // Task 5
     void buildUndirectedGraph();              // Task 6
     void printUndirectedGraph() const;
+
+    void minSpanningTree(); // Task 7
+    void minSpanningForest(); // Task 8
+
+    bool hasPath(int from, int to, std::vector<std::vector<int>>& visitedGraph, std::vector<bool>& visited); // DFS approach for kruskals
+
+
 };
 
 #endif
