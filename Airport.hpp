@@ -67,6 +67,4 @@ public:
     const std::vector<std::vector<Route>>& getRoutes() const { return routes; }
 };
 
-//#include "Airport.tpp"
-
 #endif
