@@ -1,5 +1,5 @@
 #include "AirportGraph.hpp"
-#include "Airport.tpp"
+#include "Airport.cpp"
 #include <fstream>
 #include <regex>
 #include <iostream>
