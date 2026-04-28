@@ -24,9 +24,7 @@ public:
     bool operator==(const AirportNode& other) const{
         return (this->name == other.name && this->city == other.city && this->state == other.state) ? true : false;
     }
-    friend std::ostream& operator<<(std::ostream& os, const AirportNode& obj) {
-        return os << "Airport Name: " << obj.name << ", City: " << obj.city << ", State: " << obj.state;
-    }
+
 }; 
 
 class Route { // The Edge, has weights distance and cost
