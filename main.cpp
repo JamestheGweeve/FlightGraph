@@ -1,5 +1,5 @@
 // How to compile:
-// run g++ -std=c++17 main.cpp AirportGraph.cpp -o airport_graph
+// run g++ -std=c++17 *.cpp -o airport_graph
 // then ./airport_graph airports.csv
 
 #include "AirportGraph.hpp"
@@ -16,12 +16,13 @@ int main(int argc, char* argv[]) {
     std::cout << "Tasks 2 through 8\n\n";
 
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " airports.csv\n";
+        std::cerr << "Usage: " << argv[0] << " <airports.csv>\n";
         return 1;
     }
+    std::string filename = argv[1];
 
     AirportGraph graph;
-    graph.buildGraphFromCSV(argv[1]);
+    graph.buildGraphFromCSV(filename);
 
     int choice = 0;
     while (choice != 9) {
@@ -39,34 +40,34 @@ int main(int argc, char* argv[]) {
 
         switch (choice) {
             case 2: {
-                string start, dest;
-                cout << "Enter origin airport: ";
-                cin >> start;
-                cout << "Enter destination airport: ";
-                cin >> dest;
+                std::string start, dest;
+                std::cout << "Enter origin airport: ";
+                std::cin >> start;
+                std::cout << "Enter destination airport: ";
+                std::cin >> dest;
                 graph.shortestPath(start, dest);
                 break;
             }
             
             case 3: {
-                string origin, state;
-                cout << "Enter origin airport: ";
-                cin >> origin;
-                cout << "Enter destination state (e.g., FL): ";
-                cin >> state;
+                std::string origin, state;
+                std::cout << "Enter origin airport: ";
+                std::cin >> origin;
+                std::cout << "Enter destination state (e.g., FL): ";
+                std::cin >> state;
                 graph.shortestPathToState(origin, state);
                 break;
             }
 
             case 4: {
-                string origin, dest;
+                std::string origin, dest;
                 int stops;
-                cout << "Enter origin airport: ";
-                cin >> origin;
-                cout << "Enter destination airport: ";
-                cin >> dest;
-                cout << "Enter number of stops: ";
-                cin >> stops;
+                std::cout << "Enter origin airport: ";
+                std::cin >> origin;
+                std::cout << "Enter destination airport: ";
+                std::cin >> dest;
+                std::cout << "Enter number of stops: ";
+                std::cin >> stops;
                 graph.shortestPathWithStops(origin, dest, stops);
                 break;
             }
